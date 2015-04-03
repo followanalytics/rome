@@ -3606,9 +3606,8 @@ function calendar (calendarOptions) {
     var offset = o.monthsInCalendar + direction * getMonthOffset(lastDayElement);
     refCal[op](offset, 'months');
     bound = inRange(refCal.clone());
-    ref = bound || ref;
     if (bound) { refCal = bound.clone(); }
-    update();
+    update(true);
   }
 
   function update (silent) {
@@ -3880,7 +3879,7 @@ function calendar (calendarOptions) {
     var prev = classes.contains(target, o.styles.dayPrevMonth);
     var next = classes.contains(target, o.styles.dayNextMonth);
     var offset = getMonthOffset(target) - getMonthOffset(lastDayElement);
-    ref.add(offset, 'months');
+    ref.months(refCal.months());
     if (prev || next) {
       ref.add(prev ? -1 : 1, 'months');
     }
