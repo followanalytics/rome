@@ -3329,7 +3329,6 @@ function calendar (calendarOptions) {
 
   // time variables
   var secondsInDay = 60 * 60 * 24;
-  var time;
   var timelist;
 
   var api = emitter({
@@ -3356,7 +3355,7 @@ function calendar (calendarOptions) {
 
     removeChildren(container);
     rendered = false;
-    ref = o.initialValue ? o.initialValue : momentum.moment();
+    ref = o.initialValue ? o.initialValue : defaultValue();
     refCal = ref.clone();
 
     api.container = container;
@@ -3378,6 +3377,20 @@ function calendar (calendarOptions) {
     ready();
 
     return api;
+  }
+
+  function defaultValue() {
+    var now = momentum.moment();
+
+    var next = momentum.moment('00:00:00', 'HH:mm:ss');
+    var latest = next.clone().add(1, 'days');
+
+    while (next.isBefore(latest)) {
+      if(next.isAfter(now)) {
+        return next;
+      }
+      next.add(o.timeInterval, 'seconds');
+    }
   }
 
   function ready () {
@@ -3494,14 +3507,13 @@ function calendar (calendarOptions) {
       return;
     }
     var timewrapper = dom({ className: o.styles.time, parent: container });
-    time = dom({ className: o.styles.selectedTime, parent: timewrapper, text: ref.format(o.timeFormat) });
-    crossvent.add(time, 'click', toggleTimeList);
-    timelist = dom({ className: o.styles.timeList, parent: timewrapper });
-    crossvent.add(timelist, 'click', pickTime);
+    timelist = dom({ className: o.styles.selectedTime, parent: timewrapper, type: 'select' });
+    crossvent.add(timelist, 'change', pickTime);
+
     var next = momentum.moment('00:00:00', 'HH:mm:ss');
     var latest = next.clone().add(1, 'days');
     while (next.isBefore(latest)) {
-      dom({ className: o.styles.timeOption, parent: timelist, text: next.format(o.timeFormat) });
+      dom({ className: o.styles.timeOption, parent: timelist, text: next.format(o.timeFormat), type: 'option' });
       next.add(o.timeInterval, 'seconds');
     }
   }
@@ -3533,36 +3545,22 @@ function calendar (calendarOptions) {
     }
   }
 
-  function toggleTimeList (show) {
-    var display = typeof show === 'boolean' ? show : timelist.style.display === 'none';
-    if (display) {
-      showTimeList();
-    } else {
-      hideTimeList();
-    }
-  }
-
-  function showTimeList () { if (timelist) { timelist.style.display = 'block'; } }
-  function hideTimeList () { if (timelist) { timelist.style.display = 'none'; } }
   function showCalendar () { container.style.display = 'inline-block'; api.emit('show'); }
   function hideCalendar () { container.style.display = 'none'; api.emit('hide'); }
 
   function show () {
     render();
     refresh();
-    toggleTimeList(!o.date);
     showCalendar();
     return api;
   }
 
   function hide () {
-    hideTimeList();
     setTimeout(hideCalendar, 0);
     return api;
   }
 
   function hideConditionally () {
-    hideTimeList();
 
     var pos = classes.contains(container, o.styles.positioned);
     if (pos) {
@@ -3690,7 +3688,7 @@ function calendar (calendarOptions) {
     if (!o.time || !rendered) {
       return;
     }
-    text(time, ref.format(o.timeFormat));
+    timelist.value = ref.format(o.timeFormat);
   }
 
   function emitValues () {
@@ -3920,18 +3918,16 @@ function calendar (calendarOptions) {
 
   function pickTime (e) {
     var target = e.target;
-    if (!classes.contains(target, o.styles.timeOption)) {
+    if (!target.value) {
       return;
     }
-    var value = momentum.moment(text(target), o.timeFormat);
+    var value = momentum.moment(target.value, o.timeFormat);
     setTime(ref, value);
     refCal = ref.clone();
     emitValues();
     updateTime();
     if ((!o.date && o.autoClose === true) || o.autoClose === 'time') {
       hideConditionally();
-    } else {
-      hideTimeList();
     }
   }
 
