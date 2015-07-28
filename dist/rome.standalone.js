@@ -938,6 +938,7 @@ function calendar (calendarOptions) {
     var next = classes.contains(target, o.styles.dayNextMonth);
     var offset = getMonthOffset(target) - getMonthOffset(lastDayElement);
     ref.months(refCal.months());
+    ref.years(refCal.years());
     if (prev || next) {
       ref.add(prev ? -1 : 1, 'months');
     }
