@@ -3740,7 +3740,7 @@ function calendar (calendarOptions) {
     var month = calendarMonths[offset];
     var offsetCal = refCal.clone().add(offset, 'months');
     var total = offsetCal.daysInMonth();
-    var current = offsetCal.month() !== ref.month() ? -1 : ref.date(); // -1 : 1..31
+    var current = offsetCal.year() !== ref.year() || offsetCal.month() !== ref.month() ? -1 : ref.date(); // -1 : 1..31
     var first = offsetCal.clone().date(1);
     var firstDay = weekday(first.day(), true); // 0..6
     var tr = dom({ type: 'tr', className: o.styles.dayRow, parent: month.body });
