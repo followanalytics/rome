@@ -34,6 +34,7 @@ function calendar (calendarOptions) {
 
   // time variables
   var secondsInDay = 60 * 60 * 24;
+  var time;
   var timelist;
 
   var api = emitter({
